@@ -308,7 +308,7 @@ def quantize(
 
         # Post-processing of the onnx model after ORT quantization
         logger.info("Starting post-processing of quantized model")
-        onnx_model = onnx.load(tmp_onnx_path)
+        onnx_model = onnx.load(tmp_onnx_path, load_external_data=True)
         graph = gs.import_onnx(onnx_model)
         remove_partial_input_qdq(graph, no_quantize_inputs)
         onnx_model = gs.export_onnx(graph)
