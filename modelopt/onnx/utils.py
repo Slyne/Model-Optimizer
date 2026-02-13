@@ -1170,7 +1170,10 @@ def infer_shapes(model: onnx.ModelProto, **kwargs):
             onnx_inferred_path = os.path.join(temp_dir, f"inferred_{unique_id}.onnx")
             save_onnx(model, onnx_orig_path, save_as_external_data=True)
             onnx.shape_inference.infer_shapes_path(onnx_orig_path, onnx_inferred_path, **kwargs)
-            model = onnx.load(onnx_inferred_path)
+            # Must load external data while the temp dir still exists; after
+            # the `with` block exits the .onnx_data sidecar is deleted and
+            # any tensor that still references it becomes inaccessible.
+            model = onnx.load(onnx_inferred_path, load_external_data=True)
         return model
     else:
         return onnx.shape_inference.infer_shapes(model, **kwargs)
